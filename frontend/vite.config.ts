@@ -1,0 +1,24 @@
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+// Vite dev server config.
+// The /uploads proxy forwards browser requests to the Spring Boot gateway on
+// :8080, avoiding CORS in development. In production the frontend should be
+// served from the same origin as the gateway (or via a reverse proxy).
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173,
+    proxy: {
+      "/uploads": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+      // Story 1.3: SSE stream of extraction-failure events from the gateway.
+      "/sse": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
+  },
+});

@@ -1,0 +1,43 @@
+# ---- Secrets / environment ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# ---- Java / Maven ----
+target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+
+# ---- Node / frontend ----
+node_modules/
+dist/
+.vite/
+*.local
+
+# ---- Terraform (state + downloaded providers can contain secrets / large binaries) ----
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# ---- IDE / OS junk ----
+.idea/
+.vscode/
+.DS_Store
+__MACOSX/
+*.iml
+
+# ---- Logs ----
+*.log

@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design System Tokens ────────────────────────────────────────── */
+:root {
+  /* Typography */
+  --font-display: "Syne", sans-serif;
+  --font-body: "Figtree", sans-serif;
+
+  /* Palette */
+  --color-bg: #f8f7f5;
+  --color-surface: #ffffff;
+  --color-border: #e4e2dd;
+  --color-accent: #4f46e5;
+  --color-accent-light: #eef2ff;
+  --color-accent-hover: #4338ca;
+  --color-text-primary: #18181b;
+  --color-text-muted: #6b7280;
+  --color-success: #166534;
+  --color-success-bg: #f0fdf4;
+  --color-success-border: #bbf7d0;
+  --color-error: #991b1b;
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fecaca;
+
+  /* Shadows */
+  --shadow-card:
+    0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-card-hover:
+    0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -1px rgb(0 0 0 / 0.05);
+}
+
+/* ── Base ────────────────────────────────────────────────────────── */
+html {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+/* ── Subtle dot-grid background texture ─────────────────────────── */
+body {
+  background-image: radial-gradient(circle, #d4d0c8 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+}
