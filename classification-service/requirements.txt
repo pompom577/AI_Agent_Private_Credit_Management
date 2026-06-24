@@ -37,3 +37,7 @@ uvicorn==0.47.0
 
 # --- Story 1.3 — Person 1 (Tabular Data Extraction) ---
 pdfplumber==0.11.9
+
+# --- Story 2.1 — Tests ---
+pytest==8.3.5
+pytest-mock==3.14.0

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS deals (
 
 -- Create Anti-Hallucination Audit Ledger Schema (Epic 2)
 CREATE TABLE IF NOT EXISTS metric_audit_log (
-    audit_id SERIAL PRIMARY KEY,
+    audit_id BIGSERIAL PRIMARY KEY,
     metric_id VARCHAR(255) NOT NULL,
     original_value VARCHAR(255) NOT NULL,
     new_value VARCHAR(255) NOT NULL,
@@ -41,6 +41,9 @@ CREATE TABLE IF NOT EXISTS document_records (
 
 -- Story 1.3: ensure file_path exists on pre-existing databases.
 ALTER TABLE document_records ADD COLUMN IF NOT EXISTS file_path VARCHAR(1000);
+
+-- Story 2.2: page_count enables server-side page-range validation (TC-BE-03).
+ALTER TABLE document_records ADD COLUMN IF NOT EXISTS page_count INT;
 
 CREATE OR REPLACE FUNCTION set_document_record_updated_at()
 RETURNS TRIGGER AS $$
@@ -78,4 +81,17 @@ CREATE TABLE IF NOT EXISTS extracted_metrics (
     source_doc_id BIGINT NOT NULL REFERENCES document_records(id) ON DELETE CASCADE,
     page_number   INT,
     created_at    TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Story 2.0: Spatial bounding box coordinates linked to extracted metrics
+CREATE TABLE IF NOT EXISTS document_coordinates (
+    id          BIGSERIAL PRIMARY KEY,
+    metric_id   BIGINT NOT NULL REFERENCES extracted_metrics(id) ON DELETE RESTRICT,
+    page_number INT NOT NULL,
+    x_min       DOUBLE PRECISION NOT NULL,
+    y_min       DOUBLE PRECISION NOT NULL,
+    x_max       DOUBLE PRECISION NOT NULL,
+    y_max       DOUBLE PRECISION NOT NULL,
+    row_index   INT,
+    col_index   INT
 );

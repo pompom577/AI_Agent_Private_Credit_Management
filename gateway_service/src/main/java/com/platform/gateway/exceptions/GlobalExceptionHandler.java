@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
+import java.util.NoSuchElementException;
+
 /**
  * Translates domain exceptions into the HTTP error contract from the 1.1b diagrams.
  */
@@ -44,6 +46,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                 .body(new ErrorResponse("upload too large"));
+    }
+
+    @ExceptionHandler(InvalidPageRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPageRange(InvalidPageRangeException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(DocumentStreamTimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleDocumentStreamTimeout(DocumentStreamTimeoutException ex) {
+        return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NoSuchElementException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
     // 400: malformed multipart payload (missing boundary, truncated stream, etc.).

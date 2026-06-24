@@ -11,10 +11,10 @@ services:
       - ../init-scripts:/app/init-scripts
     environment:
       # - SPRING_PROFILES_ACTIVE=prod
-      # DB connection — supplied via infrastructure/docker/.env (see .env.example)
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      # 🔗 Connected to your live AWS RDS Database Endpoint
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-ancient-flower-apre4f1g-pooler.c-7.us-east-1.aws.neon.tech:5432/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_fMJjL3ezCrR5
       - SPRING_SQL_INIT_MODE=always
       - SPRING_SQL_INIT_SCHEMA_LOCATIONS=file:/app/init-scripts/01-init-db.sql,file:/app/init-scripts/02-document-records-schema.sql,file:/app/init-scripts/03-extracted-metrics-schema.sql
       - S3_BUCKET=private-credit-ingestion-dev-storage
@@ -22,7 +22,7 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - CLASSIFY_BASE_URL=http://classification-service:8000
-      - INTERNAL_JWT_SECRET=${INTERNAL_JWT_SECRET}
+      - INTERNAL_JWT_SECRET=platform-internal-jwt-signing-secret
       - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=500MB
       - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=500MB
     networks:
@@ -46,7 +46,7 @@ services:
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - INTERNAL_JWT_SECRET=${INTERNAL_JWT_SECRET}
+      - INTERNAL_JWT_SECRET=platform-internal-jwt-signing-secret
       - JWT_ALGORITHM=HS256
       # 🔗 Story 1.2 — Person 1 LLM (Google Gemini, free tier)
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}

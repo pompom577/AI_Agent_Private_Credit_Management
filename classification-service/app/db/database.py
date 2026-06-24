@@ -8,7 +8,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://platform_admin:changeme@localhost:5432/private_credit_db",
+    "postgresql://platform_admin:ChooseAHighlySecureRandomPassword123!@localhost:5432/private_credit_db",
 )
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
