@@ -1,0 +1,73 @@
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 1024
+
+spring:
+  application:
+    name: gateway-service
+  datasource:
+    url: jdbc:postgresql://${DB_ENDPOINT:private-credit-db-prod.c0zko0euyt4g.us-east-1.rds.amazonaws.com}:5432/private_credit_db
+    username: ${DB_USER:platform_admin}
+    password: ${DB_PASSWORD:ChooseAHighlySecureRandomPassword123!}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      continue-on-error: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: ${SPRING_CACHE_TYPE:none}  # Set to 'redis' in prod when REDIS_ENABLED=true
+
+gateway:
+  upload:
+    max-size-bytes: 524288000 # 500 MB hard cap mirrored on the backend
+  storage:
+    bucket: ${S3_BUCKET:private-credit-ingestion-dev-storage}
+    region: ${AWS_REGION:us-east-1}
+  classification:
+    base-url: ${CLASSIFY_BASE_URL:http://classification-service:8000}
+  webhook:
+    gateway-base-url: ${GATEWAY_BASE_URL:http://gateway-service:8080}
+  jwt:
+    secret: ${INTERNAL_JWT_SECRET:platform-internal-jwt-signing-secret}
+    ttl-seconds: 60
+  document:
+    stream-timeout-ms: 1800  # 1.8s SLA abort — exceeding this returns 504 Gateway Timeout
+  hitl:
+    high-risk-endpoints:
+      - /api/credit/approve
+      - /api/credit/transfer
+      - /api/trade/execute
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    com.platform.gateway: DEBUG
+    com.platform.gateway.services.JwtService: DEBUG

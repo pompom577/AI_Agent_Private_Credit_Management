@@ -1,0 +1,95 @@
+services:
+  # Person 2: Spring Boot API Gateway
+  gateway-service:
+    build:
+      context: ../../gateway_service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - '8080:8080'
+    volumes:
+      - ../init-scripts:/app/init-scripts
+    environment:
+      # - SPRING_PROFILES_ACTIVE=prod
+      # 🔗 Connected to your live AWS RDS Database Endpoint
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-ancient-flower-apre4f1g-pooler.c-7.us-east-1.aws.neon.tech:5432/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_fMJjL3ezCrR5
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_SQL_INIT_SCHEMA_LOCATIONS=file:/app/init-scripts/01-init-db.sql,file:/app/init-scripts/02-document-records-schema.sql,file:/app/init-scripts/03-extracted-metrics-schema.sql
+      - S3_BUCKET=private-credit-ingestion-dev-storage
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - CLASSIFY_BASE_URL=http://classification-service:8000
+      - INTERNAL_JWT_SECRET=platform-internal-jwt-signing-secret
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=500MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=500MB
+      - SPRING_DATA_REDIS_HOST=gateway-cache
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - ingestion-network
+
+  # Person 3: FastAPI Classification & Ingestion Engine
+  classification-service:
+    build:
+      context: ../../classification-service
+      dockerfile: Dockerfile
+    container_name: classification-service
+    ports:
+      - '8000:8000'
+    tmpfs:
+      - /tmp:size=2G,mode=1777
+    depends_on:
+      - gateway-service
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - AWS_S3_BUCKET_NAME=private-credit-ingestion-dev-storage
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - INTERNAL_JWT_SECRET=platform-internal-jwt-signing-secret
+      - JWT_ALGORITHM=HS256
+      # 🔗 Story 1.2 — Person 1 LLM (Google Gemini, free tier)
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # 🔗 Story 1.2 — Person 2 webhook callback to Spring Boot gateway
+      - GATEWAY_CALLBACK_URL=http://gateway-service:8080/webhooks/classification-complete
+      # 🔗 Story 1.3 — Person 2 extraction-failure event to Spring Boot gateway
+      - GATEWAY_EXTRACTION_EVENT_URL=http://gateway-service:8080/webhooks/extraction-failed
+    networks:
+      - ingestion-network
+
+  # Person 1: React Frontend UI
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    container_name: frontend-ui
+    ports:
+      - '3000:80'
+    # No build-time env vars: the bundled JS calls /uploads relatively, and
+    # nginx (see frontend/nginx.conf) reverse-proxies that path to
+    # gateway-service:8080 over the ingestion-network.
+    depends_on:
+      - gateway-service
+    networks:
+      - ingestion-network
+
+  gateway-cache:
+    image: redis:7.2-alpine
+    container_name: ddac-gateway-cache
+    ports:
+      - '6379:6379'
+    command: redis-server --maxmemory 1gb --maxmemory-policy allkeys-lru
+    volumes:
+      - cache_data:/data
+    networks:
+      - ingestion-network
+
+volumes:
+  cache_data:
+
+networks:
+  ingestion-network:
+    driver: bridge

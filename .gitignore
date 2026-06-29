@@ -1,0 +1,42 @@
+# Secrets — never commit
+.env
+*.env
+*.pem
+*.key
+
+# macOS
+.DS_Store
+
+# Java / Maven
+gateway_service/target/
+*.class
+*.jar
+!*-sources.jar
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Test / coverage artifacts
+coverage/
+*.lcov
+.nyc_output/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Uploaded test ZIPs (binary artifacts, not source)
+*.zip
