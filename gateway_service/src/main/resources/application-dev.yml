@@ -1,0 +1,14 @@
+gateway:
+  storage:
+    bucket: deal-ingestion-dev
+    region: ap-southeast-1
+  classification:
+    base-url: http://localhost:8000
+  jwt:
+    secret: dev-only-secret-replace-via-env-INTERNAL_JWT_SECRET
+    ttl-seconds: 60
+
+logging:
+  level:
+    com.platform.gateway: DEBUG
+    org.springframework.web: DEBUG

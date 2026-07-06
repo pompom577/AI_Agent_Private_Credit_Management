@@ -1,0 +1,71 @@
+{
+  "title": "HITL Compliance Health",
+  "uid": "hitl-compliance-health",
+  "schemaVersion": 39,
+  "tags": ["hitl", "sub-story-3.3a"],
+  "timezone": "browser",
+  "time": { "from": "now-24h", "to": "now" },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Audit Ledger Writes — Success vs Failure",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "expr": "increase(hitl_audit_ledger_writes_total[5m])",
+          "legendFormat": "Successful writes"
+        },
+        {
+          "expr": "increase(hitl_audit_ledger_write_failures_total[5m])",
+          "legendFormat": "Failed writes"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Audit Ledger Write Failures (last 5m)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        { "expr": "increase(hitl_audit_ledger_write_failures_total[5m])" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Audit Ledger Write Success Rate (24h)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" } },
+      "targets": [
+        {
+          "expr": "sum(increase(hitl_audit_ledger_writes_total[24h])) / (sum(increase(hitl_audit_ledger_writes_total[24h])) + sum(increase(hitl_audit_ledger_write_failures_total[24h])))"
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus"
+      }
+    ]
+  }
+}

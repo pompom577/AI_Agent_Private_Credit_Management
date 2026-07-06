@@ -1,0 +1,21 @@
+# Sub-Story 3.3a — TC-OPS-01
+#
+# hitl_audit_ledger_write_failures_total and hitl_audit_ledger_writes_total are
+# emitted by AuditLoggingService (gateway_service) via Micrometer and scraped
+# from the gateway's /actuator/prometheus endpoint.
+groups:
+  - name: hitl-audit-ledger
+    rules:
+      - alert: HitlAuditLedgerWriteFailure
+        expr: increase(hitl_audit_ledger_write_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HITL audit ledger write failed — compliance pipeline stalled"
+          description: >
+            A write to hitl_audit_ledger failed. Because the Approve/Reject endpoint
+            wraps the quarantine release/discard and the ledger INSERT in a single
+            transaction, the failed write also rolled back the payload decision —
+            compliance officers cannot approve or reject any deal until this is
+            resolved. Page the on-call SRE immediately.
