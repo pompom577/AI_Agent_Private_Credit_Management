@@ -9,8 +9,11 @@ resource "aws_sns_topic_subscription" "slack_webhook_subscription" {
   protocol               = "https"
   endpoint_auto_confirms = true
   
-  # Replace with your actual team Slack / Teams inbound webhook URL endpoint
-  endpoint = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+  # Replace with your actual team Slack / Teams inbound webhook URL endpoint.
+  # Deliberately not a real (or real-looking) webhook URL — GitHub's secret
+  # scanner blocks pushes containing anything matching Slack's webhook URL
+  # pattern, even an all-zeros placeholder.
+  endpoint = "REPLACE_WITH_YOUR_SLACK_OR_TEAMS_INBOUND_WEBHOOK_URL"
 }
 
 # Output the Topic ARN so your backend database service can call it when generating 
