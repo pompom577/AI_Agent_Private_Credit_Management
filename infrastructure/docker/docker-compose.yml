@@ -18,6 +18,14 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST:?set DB_HOST in .env}:5432/${DB_NAME:?set DB_NAME in .env}?sslmode=require
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:?set DB_USERNAME in .env}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?set DB_PASSWORD in .env}
+      # Task #1 dual-DB: when BACKUP_DB_URL is set (the Neon JDBC URL), the
+      # gateway routes reads/writes to the primary above and fails over to
+      # Neon when it is down, while BackupSyncService mirrors every table
+      # into Neon so both databases store the uploaded data. Leave empty for
+      # single-DB mode.
+      - BACKUP_DB_URL=${BACKUP_DB_URL:-}
+      - BACKUP_DB_USER=${BACKUP_DB_USER:-}
+      - BACKUP_DB_PASSWORD=${BACKUP_DB_PASSWORD:-}
       - SPRING_SQL_INIT_MODE=always
       - S3_BUCKET=private-credit-ingestion-dev-storage
       - AWS_REGION=us-east-1
@@ -53,6 +61,8 @@ services:
       - gateway-service
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      # Task #1 dual-DB: Neon fallback while the primary above is unreachable.
+      - BACKUP_DATABASE_URL=${BACKUP_DATABASE_URL:-}
       - AWS_S3_BUCKET_NAME=private-credit-ingestion-dev-storage
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}

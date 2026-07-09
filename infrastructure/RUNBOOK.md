@@ -93,6 +93,12 @@ cp .env .env   # copy your real .env over too (scp it, don't retype secrets)
 echo "RDS_ENDPOINT=<rds-endpoint>"   >> .env
 echo "DB_USERNAME=platform_admin"    >> .env
 echo "DB_PASSWORD=<the-password>"    >> .env
+# Point the classification service's primary at RDS too (it defaults to Neon):
+echo "DATABASE_URL=postgresql://platform_admin:<the-password>@<rds-endpoint>:5432/private_credit_db" >> .env
+# Keep the BACKUP_DB_URL / BACKUP_DB_USER / BACKUP_DB_PASSWORD /
+# BACKUP_DATABASE_URL lines from your local .env: with RDS as primary they
+# turn Neon into the hot backup — reads fail over to Neon during an RDS
+# outage and BackupSyncService mirrors every table into Neon (~15s lag).
 docker-compose up -d --build
 ```
 

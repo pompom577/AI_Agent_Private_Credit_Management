@@ -123,6 +123,23 @@ cp infrastructure/docker/.env.example infrastructure/docker/.env
 | `INTERNAL_JWT_SECRET`          | gateway, classification | Shared HS256 secret for internal JWTs      |
 | `GATEWAY_CALLBACK_URL`         | classification-service  | `…/webhooks/classification-complete`       |
 | `GATEWAY_EXTRACTION_EVENT_URL` | classification-service  | `…/webhooks/extraction-failed` (Story 1.3) |
+| `BACKUP_DB_URL`                | gateway-service         | Task #1 dual-DB: Neon JDBC URL, hot backup for RDS. Optional — leave unset for single-DB mode. |
+| `BACKUP_DB_USER` / `BACKUP_DB_PASSWORD` | gateway-service | Credentials for the Neon backup above |
+| `BACKUP_DATABASE_URL`          | classification-service  | Same Neon backup DB, SQLAlchemy form   |
+
+### Dual-database failover (Task #1)
+
+When `BACKUP_DB_URL`/`BACKUP_DATABASE_URL` are set, both services route
+reads/writes to the primary database (RDS in prod, Neon in dev) while it's
+healthy, and fail over to the Neon backup automatically when it isn't:
+
+- **gateway-service** — `DualDataSourceConfig` + `FailoverRoutingDataSource`
+  route JDBC traffic, and `BackupSyncService` continuously mirrors every
+  table into Neon so both databases stay in sync.
+- **classification-service** — `database.py` probes the primary at most once
+  every 5s and hands out a Neon-backed session when it's down.
+
+Leave the backup variables empty to run against a single database.
 
 ---
 
