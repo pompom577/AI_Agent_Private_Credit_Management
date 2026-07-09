@@ -1,0 +1,44 @@
+# --- Secrets ---
+.env
+*.env
+!*.env.example
+infrastructure/docker/.env
+
+# --- macOS ---
+.DS_Store
+__MACOSX/
+
+# --- Large / generated archives (not source) ---
+*.zip
+
+# --- Java / Maven (gateway_service) ---
+gateway_service/target/
+*.class
+
+# --- Python (classification-service) ---
+classification-service/__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Node / frontend ---
+frontend/node_modules/
+frontend/dist/
+node_modules/
+
+# --- IDE ---
+.idea/
+.vscode/
+*.iml
+
+# --- Terraform ---
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# --- Key material ---
+*.pem
+*.key
+id_rsa*

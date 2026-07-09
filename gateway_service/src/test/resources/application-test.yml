@@ -1,0 +1,10 @@
+gateway:
+  storage:
+    bucket: test-bucket
+    region: us-east-1
+  classification:
+    base-url: http://localhost:0
+  jwt:
+    # HS256 requires a >= 32-byte key; keep this string at least 32 chars long.
+    secret: test-only-secret-must-be-at-least-32-chars-long-aaaa
+    ttl-seconds: 60
