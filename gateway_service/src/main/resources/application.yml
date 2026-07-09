@@ -37,6 +37,16 @@ spring:
     type: ${SPRING_CACHE_TYPE:none}  # Set to 'redis' in prod when REDIS_ENABLED=true
 
 gateway:
+  datasource:
+    # Task #1 dual-DB: set BACKUP_DB_URL (jdbc:postgresql://...) to activate
+    # RDS-primary/Neon-backup failover routing + table replication
+    # (DualDataSourceConfig / BackupSyncService). Leave empty for single-DB mode.
+    backup:
+      url: ${BACKUP_DB_URL:}
+      username: ${BACKUP_DB_USER:}
+      password: ${BACKUP_DB_PASSWORD:}
+    health-check-interval-ms: 5000
+    sync-interval-ms: 15000
   upload:
     max-size-bytes: 524288000 # 500 MB hard cap mirrored on the backend
   storage:
