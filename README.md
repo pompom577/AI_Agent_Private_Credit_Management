@@ -4,10 +4,6 @@ A microservice platform for ingesting private-credit deal documents, classifying
 them, extracting tabular financial metrics, and notifying analysts in real time
 when a document needs manual OCR review.
 
-This repository implements **Sub-Story 1.3 — Tabular Data Extraction & Fallback**,
-which bridges AI document parsing, batch backend processing, and real-time
-frontend notifications.
-
 ---
 
 ## Architecture
@@ -50,7 +46,7 @@ frontend notifications.
 | `classification-service/` | Extraction Engine | FastAPI (Python 3.11)         | 8000 |
 | `infrastructure/`         | DB schema + IaC   | PostgreSQL, Docker, Terraform | 5432 |
 
-### Story 1.3 end-to-end flow
+### Story end-to-end flow
 
 1. Analyst uploads a deal ZIP → gateway validates, stores to S3, mints a JWT, and
    hands off to FastAPI `/classify`.
@@ -127,7 +123,7 @@ cp infrastructure/docker/.env.example infrastructure/docker/.env
 | `BACKUP_DB_USER` / `BACKUP_DB_PASSWORD` | gateway-service | Credentials for the Neon backup above |
 | `BACKUP_DATABASE_URL`          | classification-service  | Same Neon backup DB, SQLAlchemy form   |
 
-### Dual-database failover (Task #1)
+### Dual-database failover 
 
 When `BACKUP_DB_URL`/`BACKUP_DATABASE_URL` are set, both services route
 reads/writes to the primary database (RDS in prod, Neon in dev) while it's
